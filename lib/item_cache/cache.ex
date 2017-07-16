@@ -16,6 +16,7 @@ defmodule ItemCache.Cache do
     {id, item} = Map.pop(item, :id)
     insert(id, item)
   end
+
   def insert(id, item) do
     case get(id) do
       nil -> set(id, item)
@@ -23,14 +24,7 @@ defmodule ItemCache.Cache do
     end
   end
 
-  def fetch(item, default_value_function) do
-    case get(item) do
-      {:not_found} -> set(item, default_value_function.())
-      {:found, result} -> result
-    end
-  end
-
-  def get(item) do
+  defp get(item) do
     case GenServer.call(__MODULE__, {:get, item}) do
       [] -> nil
       [item] -> item

@@ -1,4 +1,8 @@
 defmodule BidSearch.Web.Resolver.Item do
+  @moduledoc """
+  resolves items from the cache
+  """
+
   def all(_args, _info) do
     items = ItemCache.Cache.all()
     |> Enum.map(fn (item) -> formatItem(item) end)

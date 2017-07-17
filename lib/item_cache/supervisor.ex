@@ -1,4 +1,7 @@
 defmodule ItemCache.Supervisor do
+  @moduledoc """
+  Supervises the ItemCache.Cache module
+  """
   use Supervisor
 
   def start_link() do

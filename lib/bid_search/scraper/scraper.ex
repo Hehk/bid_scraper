@@ -1,20 +1,21 @@
 defmodule BidSearch.Scraper do
+  @moduledoc """
+  Scraper server for managing scraping bidfta and updating the cache
+  """
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
 
   def init() do
     spawn fn ->
-      IO.inspect("item")
       monitor()
     end
   end
 
-  def monitor(interval \\ 500000) do
+  def monitor(interval \\ 500_000) do
     scrape()
-    |> Enum.map(&ItemCache.Cache.insert(&1))
+    |> Enum.each(&ItemCache.Cache.insert(&1))
 
-    IO.inspect("finished")
     Process.sleep(interval)
     monitor(interval)
   end
@@ -24,7 +25,7 @@ defmodule BidSearch.Scraper do
     |> Enum.map(&Task.async(fn ->
       get_items(&1)
     end))
-    |> Enum.map(&Task.await(&1, 20000))
+    |> Enum.map(&Task.await(&1, 20_000))
     |> List.flatten
     |> Enum.filter(&valid_item?(&1))
   end
@@ -63,11 +64,14 @@ defmodule BidSearch.Scraper do
     {_tag, _attr, details_enum} = details_elem
 
     id = String.slice(unformatted_id, 0, String.length(unformatted_id) - 1)
-    details = gather_details(details_enum, %{}) |> format_details
+    details = details_enum 
+    |> gather_details()
+    |> format_details
 
     Map.merge(details, %{id: id, auction_id: auction_id})
   end
 
+  defp gather_details(details_enum), do: gather_details(details_enum, %{})
   defp gather_details([{_b, _attr, [key]}, value_elem, _br | rhs], item)
   when is_bitstring(key) and is_bitstring(value_elem) do
     value = value_elem

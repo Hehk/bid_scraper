@@ -36,9 +36,9 @@ defmodule BidSearch.Mixfile do
      {:absinthe, "~> 1.3.1"},
      {:absinthe_plug, "~> 1.3.0"},
      {:floki, "~> 0.17.0"},
-     {:tesla, "~> 0.7.1"},
      {:httpoison, "~> 0.12"},
      {:cors_plug, "~> 1.2"},
-     {:uuid, "~> 1.1"}]
+     {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+    ]
   end
 end

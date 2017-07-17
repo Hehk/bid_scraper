@@ -1,4 +1,7 @@
 defmodule BidSearch.Web.Schema do
+  @moduledoc """
+  Access points for the graphql API 
+  """
   use Absinthe.Schema
   import_types BidSearch.Web.Schema.Types
   alias BidSearch.Web.Resolver

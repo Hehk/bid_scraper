@@ -1,4 +1,8 @@
 defmodule BidSearch.Web.Schema.Types do
+  @moduledoc """
+  Types used for the graphql server
+  """
+
   use Absinthe.Schema.Notation
 
   object :item do

@@ -1,4 +1,7 @@
 defmodule ItemCache.Cache do
+  @moduledoc """
+  Provides the caching system for items
+  """
   use GenServer
 
   def start_link(opts \\ []) do

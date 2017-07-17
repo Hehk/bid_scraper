@@ -1,4 +1,7 @@
 defmodule BidSearch.Application do
+  @moduledoc """
+  Entrypoint for the application
+  """
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -15,8 +18,6 @@ defmodule BidSearch.Application do
       supervisor(ItemCache.Supervisor, [])
     ]
 
-    # BidSearch.Scraper.get_auctions()
-    # [y | _] = BidSearch.Scraper.get_items("springdaleii937")
     BidSearch.Scraper.init()
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

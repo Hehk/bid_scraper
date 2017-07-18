@@ -13,9 +13,9 @@ defmodule BidSearch.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(BidSearch.Web.Endpoint, []),
-      # Start your own worker by calling: BidSearch.Worker.start_link(arg1, arg2, arg3)
       # worker(BidSearch.Worker, [arg1, arg2, arg3]),
-      supervisor(ItemCache.Supervisor, [])
+      supervisor(ItemCache.Supervisor, []),
+      supervisor(BidSearch.Scraper.Supervisor, [])
     ]
 
     BidSearch.Scraper.init()

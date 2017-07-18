@@ -4,6 +4,11 @@ defmodule BidSearch.Scraper.Server do
   """
   use GenServer
 
+  def get_auctions(), do: GenServer.call(__MODULE__, :get_auctions)
+  def get_items(auction_ids), do: GenServer.call(__MODULE__, {:get_items, auction_ids})
+  def is_updating(), do: GenServer.call(__MODULE__, :is_updating)
+  def wait(), do: GenServer.call(__MODULE__, :wait)
+
   def handle_call(:get_auctions, _from, state) do
     auction_ids = []
 

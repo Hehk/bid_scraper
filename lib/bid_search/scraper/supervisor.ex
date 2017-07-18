@@ -1,4 +1,4 @@
-defmodule BidSearch.Scraper.Monitor do
+defmodule BidSearch.Scraper.Supervisor do
   @moduledoc """
   Supervisor for the Scraper process
   """

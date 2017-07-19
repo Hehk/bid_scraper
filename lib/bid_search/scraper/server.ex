@@ -4,10 +4,10 @@ defmodule BidSearch.Scraper.Server do
   """
   use GenServer
 
-  def get_auctions(), do: GenServer.call(__MODULE__, :get_auctions)
+  def get_auctions, do: GenServer.call(__MODULE__, :get_auctions)
   def get_items(auction_ids), do: GenServer.call(__MODULE__, {:get_items, auction_ids})
-  def is_updating(), do: GenServer.call(__MODULE__, :is_updating)
-  def wait(), do: GenServer.call(__MODULE__, :wait)
+  def updating?, do: GenServer.call(__MODULE__, :updating?)
+  def wait, do: GenServer.call(__MODULE__, :wait)
 
   def handle_call(:get_auctions, _from, state) do
     auction_ids = []
@@ -21,10 +21,10 @@ defmodule BidSearch.Scraper.Server do
     {:reply, new_items, state}
   end
 
-  def handle_call(:is_updating, _from, state) do
-    %{is_updating: is_updating} = state
+  def handle_call(:updating?, _from, state) do
+    %{updating?: updating?} = state
 
-    {:reply, is_updating, state}
+    {:reply, updating?, state}
   end
 
   # defines start time of the next update
@@ -32,7 +32,7 @@ defmodule BidSearch.Scraper.Server do
     %{start_time: start_time} = state
     new_start_time = start_time + 500_000
 
-    {:reply, new_start_time, %{start_time: new_start_time, is_updating: false}}
+    {:reply, new_start_time, %{start_time: new_start_time, updating?: false}}
   end
 
   def start_link(opts \\ []) do
@@ -40,6 +40,6 @@ defmodule BidSearch.Scraper.Server do
   end
 
   def init(args) do
-    {:ok, %{start_time: 0, is_updating: true}}
+    {:ok, %{start_time: 0, updating?: true}}
   end
 end

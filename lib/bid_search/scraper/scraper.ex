@@ -5,6 +5,7 @@ defmodule BidSearch.Scraper do
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
+  alias ItemCache.Cache
 
   def init() do
     spawn fn ->
@@ -14,7 +15,7 @@ defmodule BidSearch.Scraper do
 
   def monitor(interval \\ 500_000) do
     scrape()
-    |> Enum.each(&ItemCache.Cache.insert(&1))
+    |> Enum.each(&Cache.insert(&1))
 
     Process.sleep(interval)
     monitor(interval)

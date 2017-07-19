@@ -11,7 +11,7 @@ defmodule ItemCache.Cache do
     ], opts)
   end
 
-  def all() do
+  def all do
     GenServer.call(__MODULE__, :all)
   end
 

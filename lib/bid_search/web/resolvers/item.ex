@@ -2,9 +2,10 @@ defmodule BidSearch.Web.Resolver.Item do
   @moduledoc """
   resolves items from the cache
   """
+  alias ItemCache.Cache
 
   def all(_args, _info) do
-    items = ItemCache.Cache.all()
+    items = Cache.all()
     |> Enum.map(fn (item) -> formatItem(item) end)
     limited_items = Enum.take(items, 100)
 
@@ -16,7 +17,7 @@ defmodule BidSearch.Web.Resolver.Item do
   end
 
   def find_by_id(_parent, %{id: id}, _info) do
-    case ItemCache.Cache.get(id) do
+    case Cache.get(id) do
       nil -> {:error, "Item:#{id} not found in store"}
       item -> {:ok, formatItem(item)}
     end
@@ -25,7 +26,7 @@ defmodule BidSearch.Web.Resolver.Item do
   def create(_parent, attr, _info) do
     new_id = UUID.uuid1()
 
-    with {id, params} <- ItemCache.Cache.insert(new_id, %{
+    with {id, params} <- Cache.insert(new_id, %{
       name: attr.name,
       status: "Good"
     }), do: {:ok, formatItem(id, params)}

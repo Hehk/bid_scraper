@@ -2,12 +2,16 @@ defmodule BidSearch.Web.Resolver.Item do
   @moduledoc """
   resolves items from the cache
   """
+  @item_limit 100
   alias ItemCache.Cache
 
   def all(_args, _info) do
     items = Cache.all()
-    |> Enum.map(fn (item) -> formatItem(item) end)
-    limited_items = Enum.take(items, 100)
+
+    # limiting the response to so an enourmous object is not sent
+    limited_items = items
+    |> limit_items
+    |> Enum.map(&formatItem(&1))
 
     {:ok, %{
       items: limited_items,
@@ -32,8 +36,23 @@ defmodule BidSearch.Web.Resolver.Item do
     }), do: {:ok, formatItem(id, params)}
   end
 
+  # currently needed to filter out dangerous characters that ruin the poison
+  # encoding
+  defp filter_string(str), do: filter_string(str, "")
+  defp filter_string(<<char>> <> rest, acc) when char < 0x80 do
+    filter_string(rest, acc <> <<char>>)
+  end
+  defp filter_string(<<char>> <> rest, acc), do: filter_string(rest, acc)
+  defp filter_string("", acc), do: acc
+
   defp formatItem({id, params}), do: formatItem(id, params)
   defp formatItem(id, params) do
-    Map.merge(%{id: id}, params)
+    %{
+      id: id,
+      name: params.name |> filter_string,
+      condition: params.condition,
+      auction_id: params.auction_id
+    }
   end
+  defp limit_items(items), do: Enum.take(items, @item_limit)
 end

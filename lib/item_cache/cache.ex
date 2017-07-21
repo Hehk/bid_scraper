@@ -65,4 +65,8 @@ defmodule ItemCache.Cache do
 
     {:ok, %{log_limit: log_limit, ets_table_name: ets_table_name}}
   end
+
+  def valid_item?({:error, _err}), do: false
+  def valid_item?(%{name: nil}), do: false
+  def valid_item?(_), do: true
 end

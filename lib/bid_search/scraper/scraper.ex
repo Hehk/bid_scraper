@@ -5,36 +5,9 @@ defmodule BidSearch.Scraper do
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
-  alias ItemCache.Cache
-
-  def init() do
-    spawn fn ->
-      monitor()
-    end
-  end
-
-  def monitor(interval \\ 500_000) do
-    scrape()
-    |> Enum.each(&Cache.insert(&1))
-
-    Process.sleep(interval)
-    monitor(interval)
-  end
-
-  def scrape() do
-    get_auctions()
-    |> Enum.map(&Task.async(fn ->
-      get_items(&1)
-    end))
-    |> Enum.map(&Task.await(&1, 20_000))
-    |> List.flatten
-    |> Enum.filter(&valid_item?(&1))
-  end
 
   def get_auctions() do
     with {:ok, %{body: body}} <- HTTPoison.get(@website) do
-      IO.puts("getting auctions")
-
       body
       |> Floki.find(".auction > a")
       |> Enum.map(fn ({_, attr, _}) -> attr end)
@@ -45,20 +18,15 @@ defmodule BidSearch.Scraper do
   end
 
   def get_items(auction_id) do
-    with {:ok, %{body: body}} <- HTTPoison.get(@auction_items <> auction_id) do
-
-      IO.puts("getting #{auction_id}")
-
-      body
-      |> Floki.find("tr[valign=\"top\"]")
-      |> Enum.map(fn ({_tag, _attr, children}) -> children end)
-      |> Enum.map(&(create_item(&1, auction_id)))
+    case HTTPoison.get(@auction_items <> auction_id) do
+      {:ok, %{body: body}} -> body
+        |> Floki.find("tr[valign=\"top\"]")
+        |> Enum.map(fn ({_tag, _attr, children}) -> children end)
+        |> Enum.map(&(create_item(&1, auction_id)))
+      _ -> 
+        []
     end
   end
-
-  def valid_item?({:error, _err}), do: false
-  def valid_item?(%{name: nil}), do: false
-  def valid_item?(_), do: true
 
   def create_item([id_elem, details_elem], auction_id) do
     {_tag, _attr, [unformatted_id]} = id_elem

@@ -19,7 +19,7 @@ defmodule BidSearch.Application do
     ]
 
     # temporary until the genserver works
-    BidSearch.Scraper.init()
+    # BidSearch.Scraper.init()
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

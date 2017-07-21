@@ -13,7 +13,13 @@ defmodule BidSearch.Scraper.Supervisor do
       worker(BidSearch.Scraper.Server, [[name: BidSearch.Scraper.Server]])
     ]
 
+    #schedule_scrape()
     supervise(children, strategy: :one_for_one)
+  end
+
+  def schedule_scrape do
+
+    BidSearch.Scraper.Server.get_auctions()
   end
 
 end

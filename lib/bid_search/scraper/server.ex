@@ -3,43 +3,58 @@ defmodule BidSearch.Scraper.Server do
   Server for managing the scraping
   """
   use GenServer
-
-  def get_auctions, do: GenServer.call(__MODULE__, :get_auctions)
-  def get_items(auction_ids), do: GenServer.call(__MODULE__, {:get_items, auction_ids})
-  def updating?, do: GenServer.call(__MODULE__, :updating?)
-  def wait, do: GenServer.call(__MODULE__, :wait)
-
-  def handle_call(:get_auctions, _from, state) do
-    auction_ids = []
-
-    {:reply, auction_ids, state}
-  end
-
-  def handle_call({:get_items, auction_ids}, _from, state) do
-    new_items = []
-
-    {:reply, new_items, state}
-  end
-
-  def handle_call(:updating?, _from, state) do
-    %{updating?: updating?} = state
-
-    {:reply, updating?, state}
-  end
-
-  # defines start time of the next update
-  def handle_call(:wait, _from, state) do
-    %{start_time: start_time} = state
-    new_start_time = start_time + 500_000
-
-    {:reply, new_start_time, %{start_time: new_start_time, updating?: false}}
-  end
+  alias BidSearch.Scraper
+  alias ItemCache.Cache
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [], opts)
   end
 
   def init(args) do
-    {:ok, %{start_time: 0, updating?: true}}
+    # updating for initial load
+    scrape()
+
+    # prepare future refreshing of cache
+    schedule_scrape()
+
+    {:ok, %{updating?: true}}
+  end
+
+  def handle_cast(:done_updating, state) do
+    {:noreply, %{updating?: false}}
+  end
+
+  def updating?, do: GenServer.call(__MODULE__, :updating?)
+  def handle_call(:updating?, _from, %{updating?: updating?} = state) do
+    {:reply, updating?, state}
+  end
+
+  def handle_info(:scrape, state) do
+    scrape()
+    schedule_scrape()
+
+    {:noreply, %{updating?: true}}
+  end
+
+  def schedule_scrape do
+    Process.send_after(__MODULE__, :scrape, 1_000 * 60 * 2)
+  end
+
+  def scrape do
+    Task.start_link fn ->
+      # gathering items
+      items = Scraper.get_auctions
+      |> Enum.map(&Task.async(fn ->
+        Scraper.get_items(&1)
+      end))
+      |> Enum.map(&Task.await(&1, 20_000))
+      |> List.flatten
+      |> Enum.filter(&Cache.valid_item?(&1))
+
+      Enum.each(items, &Cache.insert(&1))
+
+      IO.puts "Gathered #{length items} items"
+      GenServer.cast(__MODULE__, :done_updating)
+    end
   end
 end

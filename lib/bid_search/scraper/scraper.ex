@@ -5,10 +5,11 @@ defmodule BidSearch.Scraper do
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
-  @options [ssl: [{:versions, [:'tlsv1.2']}]]
+
+  defp get(url), do: HTTPoison.get(url, [], [ssl: [{:versions, [:'tlsv1.2']}]])
 
   def get_auctions() do
-    case HTTPoison.get(@website, [], @options) do
+    case get(@website) do
       {:ok, %{body: body}} -> body
         |> Floki.find(".auction > a")
         |> Enum.map(fn ({_, attr, _}) -> attr end)
@@ -23,12 +24,12 @@ defmodule BidSearch.Scraper do
   end
 
   def get_items(auction_id) do
-    options = [ssl: [{:versions, [:'tlsv1.2']}]]
-    case HTTPoison.get(@auction_items <> auction_id, [], @options) do
+    case get("#{@auction_items}#{auction_id}") do
       {:ok, %{body: body}} -> body
         |> Floki.find("tr[valign=\"top\"]")
         |> Enum.map(fn ({_tag, _attr, children}) -> children end)
         |> Enum.map(&(create_item(&1, auction_id)))
+
       _ -> []
     end
   end

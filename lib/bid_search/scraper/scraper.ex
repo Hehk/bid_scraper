@@ -5,26 +5,31 @@ defmodule BidSearch.Scraper do
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
+  @options [ssl: [{:versions, [:'tlsv1.2']}]]
 
   def get_auctions() do
-    with {:ok, %{body: body}} <- HTTPoison.get(@website) do
-      body
-      |> Floki.find(".auction > a")
-      |> Enum.map(fn ({_, attr, _}) -> attr end)
-      |> Enum.map(fn ([{"href", test} | _]) -> test end)
-      |> Enum.map(&(String.split(&1, "?")))
-      |> Enum.map(fn ([_prefix, id]) -> id end)
+    case HTTPoison.get(@website, [], @options) do
+      {:ok, %{body: body}} -> body
+        |> Floki.find(".auction > a")
+        |> Enum.map(fn ({_, attr, _}) -> attr end)
+        |> Enum.map(fn ([{"href", test} | _]) -> test end)
+        |> Enum.map(&(String.split(&1, "?")))
+        |> Enum.map(fn ([_prefix, id]) -> id end)
+
+      # occurs due to bug with erlang 1.9
+      {:error, %{id: nil, reason: :connect_timeout}} ->
+        []
     end
   end
 
   def get_items(auction_id) do
-    case HTTPoison.get(@auction_items <> auction_id) do
+    options = [ssl: [{:versions, [:'tlsv1.2']}]]
+    case HTTPoison.get(@auction_items <> auction_id, [], @options) do
       {:ok, %{body: body}} -> body
         |> Floki.find("tr[valign=\"top\"]")
         |> Enum.map(fn ({_tag, _attr, children}) -> children end)
         |> Enum.map(&(create_item(&1, auction_id)))
-      _ -> 
-        []
+      _ -> []
     end
   end
 

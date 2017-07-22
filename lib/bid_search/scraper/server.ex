@@ -37,10 +37,11 @@ defmodule BidSearch.Scraper.Server do
   end
 
   def schedule_scrape do
-    Process.send_after(__MODULE__, :scrape, 1_000 * 60 * 2)
+    Process.send_after(__MODULE__, :scrape, 1_000 * 10 * 4)
   end
 
   def scrape do
+    IO.puts "starting scraping"
     Task.start_link fn ->
       # gathering items
       items = Scraper.get_auctions

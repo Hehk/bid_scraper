@@ -44,10 +44,7 @@ defmodule BidSearch.Scraper.Server do
     Task.start_link fn ->
       # gathering items
       items = Scraper.get_auctions
-      |> Enum.map(&Task.async(fn ->
-        Scraper.get_items(&1)
-      end))
-      |> Enum.map(&Task.await(&1, 20_000))
+      |> Enum.map(&Scraper.get_items(&1))
       |> List.flatten
       |> Enum.filter(&Cache.valid_item?(&1))
 

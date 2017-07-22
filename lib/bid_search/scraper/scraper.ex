@@ -19,6 +19,7 @@ defmodule BidSearch.Scraper do
 
       # occurs due to bug with erlang 1.9
       {:error, %{id: nil, reason: :connect_timeout}} ->
+        IO.puts "error in getting auctions"
         []
     end
   end
@@ -30,7 +31,9 @@ defmodule BidSearch.Scraper do
         |> Enum.map(fn ({_tag, _attr, children}) -> children end)
         |> Enum.map(&(create_item(&1, auction_id)))
 
-      _ -> []
+      _ -> 
+        IO.puts "error in item #{auction_id}"
+        []
     end
   end
 

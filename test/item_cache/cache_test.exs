@@ -1,4 +1,4 @@
-defmodule LinkCacheTest do
+defmodule ItemCacheTest do
   import ItemCache.Cache
   use ExUnit.Case
 

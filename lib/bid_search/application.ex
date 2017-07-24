@@ -13,8 +13,10 @@ defmodule BidSearch.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(BidSearch.Web.Endpoint, []),
-      # worker(BidSearch.Worker, [arg1, arg2, arg3]),
+
       supervisor(ItemCache.Supervisor, []),
+      supervisor(AuctionCache.Supervisor, []),
+
       supervisor(BidSearch.Scraper.Supervisor, [])
     ]
 

@@ -8,8 +8,9 @@ defmodule ItemCacheTest do
   end
 
   test "inserts errors on duplicate" do
-    item = %{id: 1, item: "Thunderfury, Blessed Blade of the Windseeker"}
+    item = %{id: 2, item: "Duplicate item!!!"}
 
+    insert(item)
     {err, _msg} = insert(item)
     assert err == :error
   end
@@ -18,7 +19,9 @@ defmodule ItemCacheTest do
     insert(2, "test")
     insert(3, "test")
 
-    assert Enum.count(all()) == 3
+    item_list = all()
+    assert is_list(item_list)
+    assert length(item_list) >= 2
   end
 
 end

@@ -2,8 +2,11 @@ defmodule AuctionCacheTest do
   import AuctionCache.Cache 
   use ExUnit.Case
 
-  test "setting within the cache" do
+  setup_all do
     auction = %{id: 1, name: "testing123"}
+  end
+
+  test "setting within the cache" do
     assert set(auction) == true
   end
 

@@ -17,12 +17,4 @@ defmodule BidSearch.Web.Schema do
       resolve &Resolver.Item.find_by_id/3
     end
   end
-
-  mutation do
-    field :create_item, :item do
-      arg :name, non_null(:string)
-
-      resolve &BidSearch.Web.Resolver.Item.create/3
-    end
-  end
 end

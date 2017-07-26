@@ -27,15 +27,6 @@ defmodule BidSearch.Web.Resolver.Item do
     end
   end
 
-  def create(_parent, attr, _info) do
-    new_id = UUID.uuid1()
-
-    with {id, params} <- Cache.insert(new_id, %{
-      name: attr.name,
-      status: "Good"
-    }), do: {:ok, formatItem(id, params)}
-  end
-
   # currently needed to filter out dangerous characters that ruin the poison
   # encoding
   defp filter_string(str), do: filter_string(str, "")

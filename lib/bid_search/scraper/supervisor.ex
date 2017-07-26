@@ -16,10 +16,4 @@ defmodule BidSearch.Scraper.Supervisor do
     #schedule_scrape()
     supervise(children, strategy: :one_for_one)
   end
-
-  def schedule_scrape do
-
-    BidSearch.Scraper.Server.get_auctions()
-  end
-
 end

@@ -27,14 +27,14 @@ defmodule ItemCache.Cache do
     end
   end
 
-  defp get(item) do
-    case GenServer.call(__MODULE__, {:get, item}) do
+  def get(id) do
+    case GenServer.call(__MODULE__, {:get, id}) do
       [] -> nil
       [item] -> item
     end
   end
 
-  defp set(item, value) do
+  def set(item, value) do
     GenServer.call(__MODULE__, {:set, item, value})
   end
 
@@ -45,9 +45,9 @@ defmodule ItemCache.Cache do
     {:reply, items, state}
   end
 
-  def handle_call({:get, item}, _from, state) do
+  def handle_call({:get, id}, _from, state) do
     %{ets_table_name: ets_table_name} = state
-    result = :ets.lookup(ets_table_name, item)
+    result = :ets.lookup(ets_table_name, id)
 
     {:reply, result, state}
   end

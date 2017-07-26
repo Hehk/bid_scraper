@@ -1,6 +1,6 @@
-defmodule AuctionCacheTest do
-  import AuctionCache.Cache 
-  use ExUnit.Case
+defmodule CacheAuctionTest do
+import Cache.Auctions
+use ExUnit.Case
 
   test "inserting within the cache" do
     auction = %{id: 1, name: "testing123"}

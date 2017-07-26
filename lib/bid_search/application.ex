@@ -14,8 +14,7 @@ defmodule BidSearch.Application do
       # Start the endpoint when the application starts
       supervisor(BidSearch.Web.Endpoint, []),
 
-      supervisor(ItemCache.Supervisor, []),
-      supervisor(AuctionCache.Supervisor, []),
+      supervisor(Cache.Supervisor, []),
 
       supervisor(BidSearch.Scraper.Supervisor, [])
     ]

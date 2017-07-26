@@ -3,10 +3,10 @@ defmodule BidSearch.Web.Resolver.Item do
   resolves items from the cache
   """
   @item_limit 100
-  alias ItemCache.Cache
+  alias Cache.Items
 
   def all(_args, _info) do
-    items = Cache.all()
+    items = Items.all()
 
     # limiting the response to so an enourmous object is not sent
     limited_items = items
@@ -21,7 +21,7 @@ defmodule BidSearch.Web.Resolver.Item do
   end
 
   def find_by_id(_parent, %{id: id}, _info) do
-    case Cache.get(id) do
+    case Items.get(id) do
       nil -> {:error, "Item:#{id} not found in store"}
       item -> {:ok, formatItem(item)}
     end
@@ -33,7 +33,7 @@ defmodule BidSearch.Web.Resolver.Item do
   defp filter_string(<<char>> <> rest, acc) when char < 0x80 do
     filter_string(rest, acc <> <<char>>)
   end
-  defp filter_string(<<char>> <> rest, acc), do: filter_string(rest, acc)
+  defp filter_string(<<_char>> <> rest, acc), do: filter_string(rest, acc)
   defp filter_string("", acc), do: acc
 
   defp formatItem({id, params}), do: formatItem(id, params)

@@ -4,14 +4,15 @@ defmodule BidSearch.Scraper.Server do
   """
   use GenServer
   alias BidSearch.Scraper
-  alias ItemCache.Cache
+  alias Cache.Auctions
+  alias Cache.Items
   require Logger
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [], opts)
   end
 
-  def init(args) do
+  def init(_args) do
     # updating for initial load
     scrape()
 
@@ -21,7 +22,7 @@ defmodule BidSearch.Scraper.Server do
     {:ok, %{updating?: true}}
   end
 
-  def handle_cast(:done_updating, state) do
+  def handle_cast(:done_updating, _state) do
     {:noreply, %{updating?: false}}
   end
 
@@ -30,7 +31,7 @@ defmodule BidSearch.Scraper.Server do
     {:reply, updating?, state}
   end
 
-  def handle_info(:scrape, state) do
+  def handle_info(:scrape, _state) do
     scrape()
     schedule_scrape()
 
@@ -43,7 +44,7 @@ defmodule BidSearch.Scraper.Server do
 
   def scrape do
     Task.start_link fn ->
-      cached_auction_ids = AuctionCache.Cache.all()
+      cached_auction_ids = Auctions.all()
       |> Enum.map(fn (%{id: id}) -> id end)
       |> MapSet.new()
 
@@ -56,11 +57,11 @@ defmodule BidSearch.Scraper.Server do
       items = new_auction_ids
       |> Enum.map(&Scraper.get_items(&1))
       |> List.flatten
-      |> Enum.filter(&Cache.valid_item?(&1))
+      |> Enum.filter(&Items.valid_item?(&1))
 
       # update the cache
-      Enum.each(new_auction_ids, &AuctionCache.Cache.insert(%{id: &1, test: &1}))
-      Enum.each(items, &Cache.insert(&1))
+      Enum.each(new_auction_ids, &Auctions.insert(%{id: &1, test: &1}))
+      Enum.each(items, &Items.insert(&1))
 
       Logger.info "Detected #{length MapSet.to_list(new_auction_ids)} new auctions and gathered #{length items} items!"
       GenServer.cast(__MODULE__, :done_updating)

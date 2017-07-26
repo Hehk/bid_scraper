@@ -1,5 +1,5 @@
-defmodule ItemCacheTest do
-  import ItemCache.Cache
+defmodule CacheItemTest do
+  import Cache.Items
   use ExUnit.Case
 
   test "insert converts map to tuple" do

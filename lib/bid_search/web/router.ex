@@ -13,8 +13,8 @@ defmodule BidSearch.Web.Router do
 
   scope "/" do
 
-    get "graphiql", Absinthe.Plug.GraphiQL, schema: BidSearch.Web.Schema
-    post "graphiql", Absinthe.Plug.GraphiQL, schema: BidSearch.Web.Schema
+    get "/graphiql", Absinthe.Plug.GraphiQL, schema: BidSearch.Web.Schema
+    post "/graphiql", Absinthe.Plug.GraphiQL, schema: BidSearch.Web.Schema
     forward "/graphql", Absinthe.Plug, schema: BidSearch.Web.Schema
   end
 

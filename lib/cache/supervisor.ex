@@ -1,4 +1,4 @@
-defmodule ItemCache.Supervisor do
+defmodule Cache.Supervisor do
   @moduledoc """
   Supervises the ItemCache.Cache module
   """
@@ -10,7 +10,8 @@ defmodule ItemCache.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(ItemCache.Cache, [[name: ItemCache.Cache]])
+      worker(Cache.Items, [[name: Cache.Items]]),
+      worker(Cache.Auctions, [[name: Cache.Auctions]])
     ]
 
     supervise(children, strategy: :one_for_one)

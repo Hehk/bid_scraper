@@ -1,4 +1,4 @@
-defmodule AuctionCache.Cache do
+defmodule Cache.Auctions do
   @moduledoc """
   Provides the caching system for auctions
   """

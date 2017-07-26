@@ -1,4 +1,4 @@
-defmodule ItemCache.Cache do
+defmodule Cache.Items do
   @moduledoc """
   Provides the caching system for items
   """

@@ -5,6 +5,7 @@ defmodule BidSearch.Scraper.Server do
   use GenServer
   alias BidSearch.Scraper
   alias ItemCache.Cache
+  require Logger
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [], opts)
@@ -42,15 +43,26 @@ defmodule BidSearch.Scraper.Server do
 
   def scrape do
     Task.start_link fn ->
-      # gathering items
-      items = Scraper.get_auctions
+      cached_auction_ids = AuctionCache.Cache.all()
+      |> Enum.map(fn (%{id: id}) -> id end)
+      |> MapSet.new()
+
+      # get diff between scraped and cached auctions
+      new_auction_ids = Scraper.get_auctions()
+      |> MapSet.new()
+      |> MapSet.difference(cached_auction_ids)
+
+      # get items from the new auctions
+      items = new_auction_ids
       |> Enum.map(&Scraper.get_items(&1))
       |> List.flatten
       |> Enum.filter(&Cache.valid_item?(&1))
 
+      # update the cache
+      Enum.each(new_auction_ids, &AuctionCache.Cache.insert(%{id: &1, test: &1}))
       Enum.each(items, &Cache.insert(&1))
 
-      IO.puts "Gathered #{length items} items"
+      Logger.info "Detected #{length MapSet.to_list(new_auction_ids)} new auctions and gathered #{length items} items!"
       GenServer.cast(__MODULE__, :done_updating)
     end
   end

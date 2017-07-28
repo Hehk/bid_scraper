@@ -23,16 +23,15 @@ defmodule BidSearch.Resolver.ItemTest do
       }
       """
 
-      res = context.conn
+      %{data: data} = context.conn
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
-
-      %{"data" => data} = res
+      |> AbsintheHelpers.res_to_atoms
 
       assert data == %{
-        "allItems" => %{
-          "count" => 3,
-          "isTruncated" => false,
+        allItems: %{
+          count: 3,
+          isTruncated: false
         }
       }
     end
@@ -46,14 +45,14 @@ defmodule BidSearch.Resolver.ItemTest do
       }
       """
 
-      res = context.conn
+      %{data: data} = context.conn
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
-      %{"data" => data} = res
+      |>  AbsintheHelpers.res_to_atoms
 
       assert data == %{
-        "item" => %{
-          "name" => @item_1.id
+        item: %{
+          name: @item_1.id
         }
       }
     end

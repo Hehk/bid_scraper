@@ -13,7 +13,7 @@ defmodule BidSearch.Resolver.ItemTest do
     Cache.Items.insert(@item_2)
     Cache.Items.insert(@item_3)
 
-    test "all/3 returns all the items", context do
+    test "all/2 returns all_items map", context do
       query = """
       { 
         allItems {

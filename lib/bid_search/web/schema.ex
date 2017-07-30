@@ -17,18 +17,29 @@ defmodule BidSearch.Web.Schema do
       resolve &Resolver.Item.find_by_id/3
     end
 
+    field :all_auctions, type: :auction_list do
+      resolve &Resolver.Auction.all/2
+    end
+
+    field :auction, type: :auction do
+      arg :id, non_null(:string)
+
+      resolve &Resolver.Auction.find_by_id/3
+    end
+
     field :user, type: :user do
       arg :token, non_null(:string)
 
       resolve &Resolver.User.get/3
     end
-    
+
     field :session, type: :string do
       arg :username, non_null(:string)
       arg :password, non_null(:string)
 
       resolve &Resolver.User.get_session/3
     end
+
   end
 
   mutation do

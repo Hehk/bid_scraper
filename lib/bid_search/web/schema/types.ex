@@ -18,6 +18,17 @@ defmodule BidSearch.Web.Schema.Types do
     field :is_truncated, :boolean
   end
 
+  object :auction do
+    field :id, :string
+    field :name, :string
+    field :location, :string
+  end
+
+  object :auction_list do
+    field :auctions, list_of(:auction)
+    field :count, :integer
+  end
+
   object :user do
     field :email, :string
     field :username, :string

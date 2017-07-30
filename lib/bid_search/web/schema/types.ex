@@ -17,4 +17,9 @@ defmodule BidSearch.Web.Schema.Types do
     field :count, :integer
     field :is_truncated, :boolean
   end
+
+  object :user do
+    field :email, :string
+    field :username, :string
+  end
 end

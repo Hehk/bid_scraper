@@ -7,7 +7,6 @@ defmodule BidSearch.Web.Resolver.Auction do
   def all(_args, _info) do
     auctions = Auctions.all()
 
-    IO.inspect(auctions)
     {:ok, %{
       auctions: auctions,
       count: length(auctions)

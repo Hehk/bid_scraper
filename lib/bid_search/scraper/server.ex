@@ -49,18 +49,23 @@ defmodule BidSearch.Scraper.Server do
       |> MapSet.new()
 
       # get diff between scraped and cached auctions
-      new_auction_ids = Scraper.get_auctions()
+      new_auction_ids = Scraper.get_auction_ids()
       |> MapSet.new()
       |> MapSet.difference(cached_auction_ids)
 
-      # get items from the new auctions
+      # get auctions from the new ids
+      auctions = new_auction_ids
+      |> Enum.map(&Scraper.get_auction_details(&1))
+
+      # get items from the new ids
       items = new_auction_ids
       |> Enum.map(&Scraper.get_items(&1))
       |> List.flatten
       |> Enum.filter(&Items.valid_item?(&1))
 
+      IO.inspect auctions
       # update the cache
-      Enum.each(new_auction_ids, &Auctions.insert(%{id: &1, test: &1}))
+      Enum.each(auctions, &Auctions.insert(&1))
       Enum.each(items, &Items.insert(&1))
 
       Logger.info "Detected #{length MapSet.to_list(new_auction_ids)} new auctions and gathered #{length items} items!"

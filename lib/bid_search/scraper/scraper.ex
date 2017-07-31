@@ -8,12 +8,12 @@ defmodule BidSearch.Scraper do
 
   defp get(url), do: HTTPoison.get(url, [], [ssl: [{:versions, [:'tlsv1.2']}]])
 
-  def get_auctions() do
+  def get_auction_ids() do
     case get(@website) do
       {:ok, %{body: body}} -> body
         |> Floki.find(".auction > a")
         |> Enum.map(fn ({_, attr, _}) -> attr end)
-        |> Enum.map(fn ([{"href", test} | _]) -> test end)
+        |> Enum.map(fn ([{"href", link} | _]) -> link end)
         |> Enum.map(&(String.split(&1, "?")))
         |> Enum.map(fn ([_prefix, id]) -> id end)
 
@@ -21,6 +21,19 @@ defmodule BidSearch.Scraper do
       {:error, %{id: nil, reason: :connect_timeout}} ->
         IO.puts "error in getting auctions"
         []
+    end
+  end
+
+  def get_auction_details(auction_id) do
+    case get(@auction_details <> auction_id) do
+      {:ok, %{body: body}} -> body
+        |> Floki.find("tr[valign=\"top\"]")
+        |> Enum.map(fn ({_tag, _attr, children}) -> children end)
+        |> create_auction(auction_id)
+
+      err -> 
+        IO.puts "error in auction:#{auction_id} details"
+        %{}
     end
   end
 
@@ -32,7 +45,7 @@ defmodule BidSearch.Scraper do
         |> Enum.map(&(create_item(&1, auction_id)))
 
       _ -> 
-        IO.puts "error in item #{auction_id}"
+        IO.puts "error in auction:#{auction_id} items"
         []
     end
   end
@@ -68,5 +81,17 @@ defmodule BidSearch.Scraper do
     details
     |> Map.put(:condition, condition)
     |> Map.put(:name, name)
+  end
+
+  def create_auction(auction_page, auction_id) do
+    with [date_element, loc_element | _rest] <- auction_page,
+         [_title, {_elem_type, _attr, [date]}] <- date_element,
+         [_title, {_elem_type, _attr, [loc]}] <- loc_element do
+      %{
+        id: auction_id,
+        date: date,
+        location: loc
+      }
+    end
   end
 end

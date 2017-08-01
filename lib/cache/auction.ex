@@ -28,6 +28,9 @@ defmodule Cache.Auctions do
     end
   end
 
+  def valid_auction?(%{id: _id, location: _loc, date: _date}), do: true
+  def valid_auction?(_),                                       do: false
+
   def handle_call(:all, _from, state) do
     %{ets_table_name: ets_table_name} = state
     auctions = ets_table_name

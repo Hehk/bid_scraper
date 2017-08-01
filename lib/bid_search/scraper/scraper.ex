@@ -33,6 +33,7 @@ defmodule BidSearch.Scraper do
 
       err -> 
         IO.puts "error in auction:#{auction_id} details"
+        IO.inspect err
         %{}
     end
   end

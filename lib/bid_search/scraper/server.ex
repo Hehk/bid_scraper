@@ -39,7 +39,7 @@ defmodule BidSearch.Scraper.Server do
   end
 
   def schedule_scrape do
-    Process.send_after(__MODULE__, :scrape, 1_000 * 60 * 4)
+    Process.send_after(__MODULE__, :scrape, 1_000 * 60 * 6)
   end
 
   def scrape do
@@ -56,6 +56,7 @@ defmodule BidSearch.Scraper.Server do
       # get auctions from the new ids
       auctions = new_auction_ids
       |> Enum.map(&Scraper.get_auction_details(&1))
+      |> Enum.filter(&Auctions.valid_auction?(&1))
 
       # get items from the new ids
       items = new_auction_ids
@@ -63,7 +64,6 @@ defmodule BidSearch.Scraper.Server do
       |> List.flatten
       |> Enum.filter(&Items.valid_item?(&1))
 
-      IO.inspect auctions
       # update the cache
       Enum.each(auctions, &Auctions.insert(&1))
       Enum.each(items, &Items.insert(&1))

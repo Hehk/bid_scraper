@@ -8,6 +8,8 @@ defmodule BidSearch.Scraper.Server do
   alias Cache.Items
   require Logger
 
+  @http_limit 20
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [], opts)
   end
@@ -42,6 +44,18 @@ defmodule BidSearch.Scraper.Server do
     Process.send_after(__MODULE__, :scrape, 1_000 * 60 * 6)
   end
 
+  # there is an issue with letting out too many http requests at once
+  def limited_pmap(list, limit, fun) do
+    list
+    |> Enum.chunk(limit)
+    |> Enum.map(fn chunk ->
+      chunk
+      |> Enum.map(&Task.async(fn -> fun.(&1) end))
+      |> Enum.map(&Task.await(&1, 5000))
+    end)
+    |> List.flatten
+  end
+
   def scrape do
     Task.start_link fn ->
       cached_auction_ids = Auctions.all()
@@ -55,13 +69,12 @@ defmodule BidSearch.Scraper.Server do
 
       # get auctions from the new ids
       auctions = new_auction_ids
-      |> Enum.map(&Scraper.get_auction_details(&1))
+      |> limited_pmap(@http_limit, &Scraper.get_auction_details(&1))
       |> Enum.filter(&Auctions.valid_auction?(&1))
 
       # get items from the new ids
       items = new_auction_ids
-      |> Enum.map(&Scraper.get_items(&1))
-      |> List.flatten
+      |> limited_pmap(@http_limit, &Scraper.get_items(&1))
       |> Enum.filter(&Items.valid_item?(&1))
 
       # update the cache

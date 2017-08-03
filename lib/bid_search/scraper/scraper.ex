@@ -5,6 +5,12 @@ defmodule BidSearch.Scraper do
   @website "http://www.bidfta.com/"
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
+  require Logger
+
+  defmodule BidSearch.Scraper.Error do
+    defstruct auction_id: nil, type: nil
+    @type t :: %__MODULE__{auction_id: String.t, type: reference}
+  end
 
   defp get(url), do: HTTPoison.get(url, [], [ssl: [{:versions, [:'tlsv1.2']}]])
 
@@ -12,14 +18,12 @@ defmodule BidSearch.Scraper do
     case get(@website) do
       {:ok, %{body: body}} -> body
         |> Floki.find(".auction > a")
-        |> Enum.map(fn ({_, attr, _}) -> attr end)
-        |> Enum.map(fn ([{"href", link} | _]) -> link end)
-        |> Enum.map(&(String.split(&1, "?")))
-        |> Enum.map(fn ([_prefix, id]) -> id end)
+        |> Enum.map(&harvest_id(&1))
+        |> Enum.filter(fn id -> id != "" end)
 
       # occurs due to bug with erlang 1.9
       {:error, %{id: nil, reason: :connect_timeout}} ->
-        IO.puts "error in getting auctions"
+        Logger.error "error in getting auction ids"
         []
     end
   end
@@ -31,10 +35,9 @@ defmodule BidSearch.Scraper do
         |> Enum.map(fn ({_tag, _attr, children}) -> children end)
         |> create_auction(auction_id)
 
-      err -> 
-        IO.puts "error in auction:#{auction_id} details"
-        IO.inspect err
-        %{}
+      _ -> 
+        Logger.error "details #{auction_id}"
+        {:error, %BidSearch.Scraper.Error{auction_id: auction_id, type: :details}}
     end
   end
 
@@ -46,8 +49,8 @@ defmodule BidSearch.Scraper do
         |> Enum.map(&(create_item(&1, auction_id)))
 
       _ -> 
-        IO.puts "error in auction:#{auction_id} items"
-        []
+        Logger.error "items #{auction_id}"
+        {:error, %BidSearch.Scraper.Error{auction_id: auction_id, type: :items}}
     end
   end
 
@@ -93,6 +96,18 @@ defmodule BidSearch.Scraper do
         date: date,
         location: loc
       }
+    end
+  end
+
+  def harvest_id(page_elem) do
+    with {_, attr, _}         <- page_elem,
+         [{"href", link} | _] <- attr,
+         [_prefix, id]        <- String.split(link, "?") do
+      id
+    else
+      err -> err
+      Logger.error "Failed scraping an auction_id"
+      ""
     end
   end
 end

@@ -25,11 +25,17 @@ defmodule Cache.Users do
   def insert(user) do
     case get(user.username) do
       nil -> set(user)
-      _ -> {:error, "User:#{user.username} already found within store"}
+      _   -> {:error, "User:#{user.username} already found within store"}
     end
   end
   def get(username), do: GenServer.call(__MODULE__, {:get, username})
   def set(user),     do: GenServer.call(__MODULE__, {:set, user})
+  def valid(username, password) do
+    case get(username) do
+      nil  -> false
+      user -> user.password == password
+    end
+  end
 
   # ------------------------------------------------------------------------
   # SERVER SIDE

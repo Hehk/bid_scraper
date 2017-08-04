@@ -23,7 +23,6 @@ defmodule BidSearch.Scraper do
 
       # occurs due to bug with erlang 1.9
       {:error, %{id: nil, reason: :connect_timeout}} ->
-        Logger.error "error in getting auction ids"
         []
     end
   end
@@ -106,7 +105,6 @@ defmodule BidSearch.Scraper do
       id
     else
       err -> err
-      Logger.error "Failed scraping an auction_id"
       ""
     end
   end

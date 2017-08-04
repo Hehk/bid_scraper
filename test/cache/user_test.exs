@@ -2,10 +2,9 @@ defmodule CacheUserTest do
   import Cache.Users
   use ExUnit.Case
 
-  @user_1 %{username: "test_1", password: "", email: ""}
-
   test "insert/1 user in cache" do
-    assert insert(@user_1) == true
+    user = %{username: "test_1", password: "", email: ""}
+    assert insert(user) == true
   end
 
   test "insert/1 :ok on different username but same content" do
@@ -40,6 +39,23 @@ defmodule CacheUserTest do
 
   test "valid/2 -> false if user does not exist" do
     assert valid("invalid", "invalid") == false
+  end
+
+  test "convert_to_user_map/1 converts tuple to map" do
+    user = {"me", %{password: "test", email: "test"}}
+    assert convert_to_user_map(user) == %{
+      username: "me",
+      password: "test",
+      email: "test"
+    }
+  end
+
+  test "convert_to_user_tuple/1 converts map to tuple" do
+    user = %{username: "me", password: "test", email: "test"}
+    assert convert_to_user_tuple(user) == {
+      "me",
+      %{password: "test", email: "test"}
+    }
   end
 
 end

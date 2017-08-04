@@ -45,7 +45,7 @@ defmodule Cache.Users do
     %{ets_table_name: ets_table_name} = state
     user = case :ets.lookup(ets_table_name, username) do
       []    -> nil
-      [res] -> res |> create_user_map
+      [res] -> res |> convert_to_user_map
     end
 
     {:reply, user, state}
@@ -54,7 +54,7 @@ defmodule Cache.Users do
   def handle_call({:set, user}, _from, state) do
     %{ets_table_name: ets_table_name} = state
     formatted_user = user
-    |> create_user_tuple
+    |> convert_to_user_tuple
     true = :ets.insert(ets_table_name, formatted_user)
 
     {:reply, true, state}
@@ -64,8 +64,8 @@ defmodule Cache.Users do
   # HELPER FUNCTIONS
   # ------------------------------------------------------------------------
 
-  def create_user_map({username, user_details}), do: Map.put(user_details, :username, username)
-  def create_user_tuple(user),                   do: Map.pop(user, :username)
+  def convert_to_user_map({username, user_details}), do: Map.put(user_details, :username, username)
+  def convert_to_user_tuple(user),                   do: Map.pop(user, :username)
   def clean_output(user) do
     {_pwd, clean_user} = Map.pop(user, :password)
     clean_user

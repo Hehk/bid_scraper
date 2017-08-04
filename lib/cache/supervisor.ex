@@ -11,7 +11,8 @@ defmodule Cache.Supervisor do
   def init(:ok) do
     children = [
       worker(Cache.Items, [[name: Cache.Items]]),
-      worker(Cache.Auctions, [[name: Cache.Auctions]])
+      worker(Cache.Auctions, [[name: Cache.Auctions]]),
+      worker(Cache.Users, [[name: Cache.Users]])
     ]
 
     supervise(children, strategy: :one_for_one)

@@ -16,7 +16,7 @@ defmodule BidSearch.Application do
 
       supervisor(Cache.Supervisor, []),
 
-      supervisor(BidSearch.Scraper.Supervisor, [])
+      supervisor(Scraper.Supervisor, [])
     ]
 
     # temporary until the genserver works

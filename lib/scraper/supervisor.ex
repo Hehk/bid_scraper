@@ -1,4 +1,4 @@
-defmodule BidSearch.Scraper.Supervisor do
+defmodule Scraper.Supervisor do
   @moduledoc """
   Supervisor for the Scraper process
   """
@@ -10,7 +10,7 @@ defmodule BidSearch.Scraper.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(BidSearch.Scraper.Server, [[name: BidSearch.Scraper.Server]])
+      worker(Scraper.Server, [[name: Scraper.Server]])
     ]
 
     #schedule_scrape()

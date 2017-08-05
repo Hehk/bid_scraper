@@ -1,9 +1,9 @@
-defmodule BidSearch.Scraper.Server do
+defmodule Scraper.Server do
   @moduledoc """
   Server for managing the scraping
   """
   use GenServer
-  alias BidSearch.Scraper
+  alias Scraper
   alias Cache.Auctions
   alias Cache.Items
   require Logger

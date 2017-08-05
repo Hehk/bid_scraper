@@ -1,4 +1,4 @@
-defmodule BidSearch.Scraper do
+defmodule Scraper do
   @moduledoc """
   Scraper server for managing scraping bidfta and updating the cache
   """
@@ -7,7 +7,7 @@ defmodule BidSearch.Scraper do
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
   require Logger
 
-  defmodule BidSearch.Scraper.Error do
+  defmodule Scraper.Error do
     defstruct auction_id: nil, type: nil
     @type t :: %__MODULE__{auction_id: String.t, type: reference}
   end
@@ -36,7 +36,7 @@ defmodule BidSearch.Scraper do
 
       _ -> 
         Logger.error "details #{auction_id}"
-        {:error, %BidSearch.Scraper.Error{auction_id: auction_id, type: :details}}
+        {:error, %Scraper.Error{auction_id: auction_id, type: :details}}
     end
   end
 
@@ -49,7 +49,7 @@ defmodule BidSearch.Scraper do
 
       _ -> 
         Logger.error "items #{auction_id}"
-        {:error, %BidSearch.Scraper.Error{auction_id: auction_id, type: :items}}
+        {:error, %Scraper.Error{auction_id: auction_id, type: :items}}
     end
   end
 

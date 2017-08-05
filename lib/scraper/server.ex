@@ -63,7 +63,8 @@ defmodule Scraper.Server do
       |> MapSet.new()
 
       # get diff between scraped and cached auctions
-      new_auction_ids = Scraper.get_auction_ids()
+      new_auction_ids = Scraper.Component.AuctionId.get()
+      |> Enum.filter(fn id -> is_bitstring(id) end)
       |> MapSet.new()
       |> MapSet.difference(cached_auction_ids)
 

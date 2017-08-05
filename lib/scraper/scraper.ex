@@ -1,3 +1,8 @@
+defmodule Scraper.Error do
+  defstruct reason: nil, component: nil, context: nil
+  @type t :: %__MODULE__{component: reference, reason: map, context: map}
+end
+
 defmodule Scraper do
   @moduledoc """
   Scraper server for managing scraping bidfta and updating the cache
@@ -6,11 +11,6 @@ defmodule Scraper do
   @auction_details "https://bid.bidfta.com/cgi-bin/mndetails.cgi?"
   @auction_items "https://bid.bidfta.com/cgi-bin/mnprint.cgi?"
   require Logger
-
-  defmodule Scraper.Error do
-    defstruct auction_id: nil, type: nil
-    @type t :: %__MODULE__{auction_id: String.t, type: reference}
-  end
 
   defp get(url), do: HTTPoison.get(url, [], [ssl: [{:versions, [:'tlsv1.2']}]])
 
@@ -36,7 +36,7 @@ defmodule Scraper do
 
       _ -> 
         Logger.error "details #{auction_id}"
-        {:error, %Scraper.Error{auction_id: auction_id, type: :details}}
+        {:error, %Scraper.Error{context: %{auction_id: auction_id}, component: :details}}
     end
   end
 
@@ -49,7 +49,7 @@ defmodule Scraper do
 
       _ -> 
         Logger.error "items #{auction_id}"
-        {:error, %Scraper.Error{auction_id: auction_id, type: :items}}
+        {:error, %Scraper.Error{context: %{auction_id: auction_id}, component: :items}}
     end
   end
 

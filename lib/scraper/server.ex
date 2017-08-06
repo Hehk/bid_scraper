@@ -70,12 +70,12 @@ defmodule Scraper.Server do
 
       # get auctions from the new ids
       auctions = new_auction_ids
-      |> limited_pmap(@http_limit, &Scraper.get_auction_details(&1))
+      |> limited_pmap(@http_limit, &Scraper.Component.AuctionDetails.get(&1))
       |> Enum.filter(&Auctions.valid_auction?(&1))
 
       # get items from the new ids
       items = new_auction_ids
-      |> limited_pmap(@http_limit, &Scraper.get_items(&1))
+      |> limited_pmap(@http_limit, &Scraper.Component.Items.get(&1))
       |> Enum.filter(&Items.valid_item?(&1))
 
       # update the cache

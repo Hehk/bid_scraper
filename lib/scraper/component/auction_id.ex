@@ -9,20 +9,19 @@ defmodule Scraper.Component.AuctionId do
     end
   end
 
-  def harvest_body(body) do
+  defp harvest_body(body) do
     body
     |> Floki.find(".auction > a")
     |> Enum.map(&harvest_id(&1))
   end
 
-  def harvest_id(auction_elem) do
+  defp harvest_id(auction_elem) do
     with {_, attr, _}         <- auction_elem,
          [{"href", link} | _] <- attr,
          [_prefix, id]        <- String.split(link, "?") do
       id
     else
-      err -> err
-      %Scraper.Error{
+      err -> %Scraper.Error{
         context: %{},
         component: :auction_id,
         reason: err

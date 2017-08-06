@@ -3,7 +3,7 @@ defmodule Scraper.Server do
   Server for managing the scraping
   """
   use GenServer
-  alias Scraper
+  alias Scraper.Component
   alias Cache.Auctions
   alias Cache.Items
   require Logger
@@ -63,19 +63,19 @@ defmodule Scraper.Server do
       |> MapSet.new()
 
       # get diff between scraped and cached auctions
-      new_auction_ids = Scraper.Component.AuctionId.get()
+      new_auction_ids = Component.AuctionId.get()
       |> Enum.filter(fn id -> is_bitstring(id) end)
       |> MapSet.new()
       |> MapSet.difference(cached_auction_ids)
 
       # get auctions from the new ids
       auctions = new_auction_ids
-      |> limited_pmap(@http_limit, &Scraper.Component.AuctionDetails.get(&1))
+      |> limited_pmap(@http_limit, &Component.AuctionDetails.get(&1))
       |> Enum.filter(&Auctions.valid_auction?(&1))
 
       # get items from the new ids
       items = new_auction_ids
-      |> limited_pmap(@http_limit, &Scraper.Component.Items.get(&1))
+      |> limited_pmap(@http_limit, &Component.Items.get(&1))
       |> Enum.filter(&Items.valid_item?(&1))
 
       # update the cache

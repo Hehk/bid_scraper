@@ -7,6 +7,8 @@ defmodule BidSearch.Web.Context do
   def call(conn, _) do
     case build_context(conn) do
       {:ok, context} ->
+        IO.inspect context
+        Absinthe.run(conn, MyApp.Schema, context: context)
         put_private(conn, :absinthe, %{context: context})
 
       {:error, reason} -> conn
@@ -23,11 +25,14 @@ defmodule BidSearch.Web.Context do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
          {:ok, current_user}  <- authorize(token) do
       {:ok, %{current_user: current_user}}
+    else
+      [] -> {:ok, %{}}
+      error -> error
     end
   end
 
   defp authorize(token) do
-    {:ok, nil}
+    {:ok, "test"}
   end
 
 end

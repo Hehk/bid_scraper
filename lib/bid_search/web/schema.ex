@@ -28,9 +28,7 @@ defmodule BidSearch.Web.Schema do
     end
 
     field :user, type: :user do
-      arg :token, non_null(:string)
-
-      resolve &Resolver.User.get/3
+      resolve &Resolver.User.get/2
     end
 
     field :session, type: :string do

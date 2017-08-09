@@ -3,12 +3,14 @@ defmodule BidSearch.Web.Resolver.User do
   Resolves Users for graphql queries
   """
 
-  def get(_parent, %{token: token}, _info) do
+  def get(_args, %{context: context}) do
+    IO.inspect context
     {:ok, %{
-      username: token,
-      email: token
+      username: "test",
+      email: "test"
     }}
   end
+  def get(_args, _context), do: {:ok, nil}
 
   def create(_parent, %{username: username, password: password, email: email}, _info) do
     {:ok, %{

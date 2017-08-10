@@ -35,25 +35,18 @@ defmodule BidSearch.Web.Schema do
       arg :username, non_null(:string)
       arg :password, non_null(:string)
 
-      resolve &Resolver.User.get_session/3
+      resolve &Resolver.User.get_session/2
     end
 
   end
 
   mutation do
-    field :create_session, type: :string do
-      arg :username, non_null(:string)
-      arg :password, non_null(:string)
-
-      resolve &Resolver.User.create_session/3
-    end
-
     field :create_user, type: :user do
       arg :username, non_null(:string)
       arg :password, non_null(:string)
       arg :email,    non_null(:string)
 
-      resolve &Resolver.User.create/3
+      resolve &Resolver.User.create/2
     end
   end
 end

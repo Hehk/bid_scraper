@@ -28,8 +28,9 @@ defmodule Cache.Users do
       _   -> {:error, "User:#{user.username} already found within store"}
     end
   end
-  def get(username), do: GenServer.call(__MODULE__, {:get, username})
-  def set(user),     do: GenServer.call(__MODULE__, {:set, user})
+  def find_by_session(token), do: GenServer.call(__MODULE__, {:find_by_session, token})
+  def get(username),        do: GenServer.call(__MODULE__, {:get, username})
+  def set(user),            do: GenServer.call(__MODULE__, {:set, user})
   def valid(username, password) do
     case get(username) do
       nil  -> false
@@ -58,6 +59,21 @@ defmodule Cache.Users do
     true = :ets.insert(ets_table_name, formatted_user)
 
     {:reply, true, state}
+  end
+
+  def handle_call({:find_by_session, token}, _from, state) do
+    %{ets_table_name: ets_table_name} = state
+    query = [{
+      {:"$1", %{session: :"$2"}},
+      [{:"==", :"$2", {:const, token}}],
+      [:"$_"]
+    }]
+    user = case :ets.select(ets_table_name, query) do
+      [] -> nil
+      [user] -> user |> convert_to_user_map
+    end
+
+    {:reply, user, state}
   end
 
   # ------------------------------------------------------------------------

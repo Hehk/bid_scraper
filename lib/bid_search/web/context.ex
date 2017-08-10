@@ -7,7 +7,6 @@ defmodule BidSearch.Web.Context do
   def call(conn, _) do
     case build_context(conn) do
       {:ok, context} ->
-        IO.inspect context
         Absinthe.run(conn, MyApp.Schema, context: context)
         put_private(conn, :absinthe, %{context: context})
 

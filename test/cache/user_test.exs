@@ -23,6 +23,17 @@ defmodule CacheUserTest do
     assert err == :error
   end
 
+  test "find_by_session/1 user on valid session" do
+    user = %{username: "session_2", session: "testing123"}
+    insert(user)
+
+    assert user == find_by_session(user.session)
+  end
+
+  test "find_by_session/1 nil on invalid session" do
+    assert nil == find_by_session("random")
+  end
+
   test "valid/2 -> true if username and password match" do
     user = %{username: "valid_1", password: ""}
     insert(user)

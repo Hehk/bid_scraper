@@ -32,5 +32,6 @@ defmodule BidSearch.Web.Schema.Types do
   object :user do
     field :email, :string
     field :username, :string
+    field :session, :string
   end
 end

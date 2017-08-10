@@ -3,8 +3,10 @@ defmodule BidSearch.Web.Resolver.User do
   Resolves Users for graphql queries
   """
 
+  @desc """
+  Get user by token
+  """
   def get(_args, %{context: context}) do
-    IO.inspect context
     {:ok, %{
       username: "test",
       email: "test"
@@ -12,22 +14,21 @@ defmodule BidSearch.Web.Resolver.User do
   end
   def get(_args, _context), do: {:ok, nil}
 
-  def create(_parent, %{username: username, password: password, email: email}, _info) do
+  @desc """
+  Create a new user and return it
+  """
+  def create(%{username: username, password: password, email: email}, _info) do
     {:ok, %{
       username: username,
       email: email
     }}
   end
 
-  def get_session(_parent, %{username: username, password: password}, _info) do
+  @desc """
+  Gets a session token for a user currently missing one
+  """
+  def get_session(%{username: username, password: password}, _info) do
     {:ok, username}
-  end
-
-  def create_session(_parent, %{username: username, password: password}, _info) do
-    {:ok, %{
-      username: username,
-      email: username
-    }}
   end
 
 end

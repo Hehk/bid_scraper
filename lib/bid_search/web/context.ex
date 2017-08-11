@@ -1,6 +1,7 @@
 defmodule BidSearch.Web.Context do
   @behaviour Plug
   import Plug.Conn
+  alias Cache.Users
 
   def init(opts), do: opts
 
@@ -22,16 +23,13 @@ defmodule BidSearch.Web.Context do
 
   def build_context(conn) do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
-         {:ok, current_user}  <- authorize(token) do
+         current_user         <- Users.find_by_session(token) do
       {:ok, %{current_user: current_user}}
-    else
-      [] -> {:ok, %{}}
-      error -> error
     end
   end
 
   defp authorize(token) do
-    {:ok, "test"}
+    {:ok, }
   end
 
 end

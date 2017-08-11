@@ -31,11 +31,11 @@ defmodule BidSearch.Web.Schema do
       resolve &Resolver.User.get/2
     end
 
-    field :session, type: :string do
+    field :login, type: :user do
       arg :username, non_null(:string)
       arg :password, non_null(:string)
 
-      resolve &Resolver.User.get_session/2
+      resolve &Resolver.User.login/2
     end
 
   end

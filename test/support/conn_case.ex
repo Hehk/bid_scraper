@@ -19,6 +19,7 @@ defmodule BidSearch.Web.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
+      import Plug.Conn
       import BidSearch.Web.Router.Helpers
 
       # The default endpoint for testing

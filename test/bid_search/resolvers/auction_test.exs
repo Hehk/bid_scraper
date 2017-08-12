@@ -22,6 +22,7 @@ defmodule BidSearch.Resolver.AuctionTest do
       """
 
       %{data: data} = context.conn
+      |> put_req_header("auth", "test")
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
       |> AbsintheHelpers.res_to_atoms
@@ -43,6 +44,7 @@ defmodule BidSearch.Resolver.AuctionTest do
       """
 
       %{data: data} = context.conn
+      |> put_req_header("auth", "test")
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
       |> AbsintheHelpers.res_to_atoms

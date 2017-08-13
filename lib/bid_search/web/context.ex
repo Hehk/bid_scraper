@@ -36,7 +36,7 @@ defmodule BidSearch.Web.Context do
   end
 
   defp authorize(token) do
-    {:ok, Users.find_by_session(token)}
+    Users.find_by_session(token)
   end
 
 end

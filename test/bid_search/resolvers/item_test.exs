@@ -24,7 +24,7 @@ defmodule BidSearch.Resolver.ItemTest do
       """
 
       %{data: data} = context.conn
-      |> put_req_header("auth", "test")
+      |> put_req_header("auth", "Bearer test")
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
       |> AbsintheHelpers.res_to_atoms
@@ -47,7 +47,7 @@ defmodule BidSearch.Resolver.ItemTest do
       """
 
       %{data: data} = context.conn
-      |> put_req_header("auth", "test")
+      |> put_req_header("auth", "Bearer test")
       |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
       |> json_response(200)
       |>  AbsintheHelpers.res_to_atoms

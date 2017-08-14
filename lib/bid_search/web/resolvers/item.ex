@@ -38,12 +38,7 @@ defmodule BidSearch.Web.Resolver.Item do
 
   defp formatItem({id, params}), do: formatItem(id, params)
   defp formatItem(id, params) do
-    %{
-      id: id,
-      name: params.name |> filter_string,
-      condition: params.condition,
-      auction_id: params.auction_id
-    }
+    Map.put(params, :id, id)
   end
   defp limit_items(items), do: Enum.take(items, @item_limit)
 end

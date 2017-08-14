@@ -33,5 +33,27 @@ defmodule BidSearch.Resolver.UserTest do
         }
       }
     end
+
+    test "login returns valid if user and password exist", context do
+      query = """
+      {
+        login(username: "#{@user_1.username}", password: "#{@user_1.password}") {
+          username
+        }
+      }
+      """
+
+      %{data: data} = context.conn
+      |> put_req_header("auth", "Bearer #{@user_1.session}")
+      |> post("/graphql", AbsintheHelpers.query_skeleton(query, ""))
+      |> json_response(200)
+      |> AbsintheHelpers.res_to_atoms()
+
+      assert data = %{
+        user: %{
+          username: @user_1.username
+        }
+      }
+    end
   end
 end

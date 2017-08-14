@@ -40,7 +40,8 @@ defmodule Cache.Items do
 
   def handle_call(:all, _from, state) do
     %{ets_table_name: ets_table_name} = state
-    items = :ets.tab2list(ets_table_name)
+    items = ets_table_name
+    |> :ets.tab2list()
 
     {:reply, items, state}
   end

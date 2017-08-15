@@ -16,8 +16,8 @@ defmodule CacheItemTest do
   end
 
   test "all returns all items" do
-    insert(2, "test")
-    insert(3, "test")
+    insert(2, %{name: "test"})
+    insert(3, %{name: "test"})
 
     item_list = all()
     assert is_list(item_list)

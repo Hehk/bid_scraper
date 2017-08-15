@@ -29,12 +29,8 @@ defmodule BidSearch.Resolver.ItemTest do
       |> json_response(200)
       |> AbsintheHelpers.res_to_atoms
 
-      assert data == %{
-        allItems: %{
-          count: 3,
-          isTruncated: false
-        }
-      }
+      assert data.allItems.isTruncated == false
+      assert data.allItems.count >= 3
     end
 
     test "get/3 returns item by id", context do

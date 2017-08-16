@@ -13,6 +13,14 @@ defmodule BidSearch.AbsintheHelpers do
     }
   end
 
+  def mutation_skeleton(mutation, mutation_name) do
+    %{
+      "operationName" => "#{mutation_name}",
+      "query" => "mutation #{mutation_name} #{mutation}",
+      "variables" => "{}"
+    }
+  end
+
   # Absinthe returns maps that use strings maps instead of atom maps
   def res_to_atoms(map) when is_map(map) do
     for {key, val} <- map, into: %{} do

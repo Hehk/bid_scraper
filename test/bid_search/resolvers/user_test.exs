@@ -49,9 +49,31 @@ defmodule BidSearch.Resolver.UserTest do
       |> json_response(200)
       |> AbsintheHelpers.res_to_atoms()
 
-      assert data = %{
-        user: %{
+      assert data == %{
+        login: %{
           username: @user_1.username
+        }
+      }
+    end
+
+    test "create returns user", context do
+      query = """
+      {
+        createUser(username: "create_user", password: "create_user", email: "test") {
+          username
+        }
+      }
+      """
+
+      %{data: data} = context.conn
+      |> put_req_header("auth", "Bearer ")
+      |> post("/graphql", AbsintheHelpers.mutation_skeleton(query, ""))
+      |> json_response(200)
+      |> AbsintheHelpers.res_to_atoms()
+
+      assert data == %{
+        createUser: %{
+          username: "create_user"
         }
       }
     end

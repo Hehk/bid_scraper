@@ -28,6 +28,15 @@ defmodule Cache.Users do
       _   -> {:error, "User:#{user.username} already found within store"}
     end
   end
+  def create(user) do
+    case get(user.username) do
+      nil -> user
+      |> create_new_user
+      |> set
+
+      _ -> {:error, "User:#{user.username} already found within store"}
+    end
+  end
   def find_by_session(token), do: GenServer.call(__MODULE__, {:find_by_session, token})
   def get(username),        do: GenServer.call(__MODULE__, {:get, username})
   def set(user),            do: GenServer.call(__MODULE__, {:set, user})
@@ -85,6 +94,17 @@ defmodule Cache.Users do
   def clean_output(user) do
     {_pwd, clean_user} = Map.pop(user, :password)
     clean_user
+  end
+  def create_session(user), do: "session_token#{user.username}"
+  def encrypt_password(password), do: {password, "NaCl"}
+
+  def create_new_user(user) do
+    {encrypted_password, salt} = encrypt_password(user.password)
+
+    user
+    |> Map.put(:session, create_session(user))
+    |> Map.put(:password, encrypted_password)
+    |> Map.put(:salt, salt)
   end
 
   # TODO: add function to clean input, like encrypting passwords

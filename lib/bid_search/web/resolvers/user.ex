@@ -16,9 +16,8 @@ defmodule BidSearch.Web.Resolver.User do
   Create a new user and return it
   """
   def create(user = %{username: _username, password: _password, email: _email}, _info) do
-    case Users.insert(user) do
-      true -> {:ok, user}
-      res  -> res
+    with true <- Users.create(user) do
+      {:ok, user}
     end
   end
 

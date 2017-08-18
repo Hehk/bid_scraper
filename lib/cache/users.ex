@@ -3,6 +3,12 @@ defmodule Cache.Users do
   Provides the caching system for users
   """
   use GenServer
+  import Cache.Utils
+
+  # fields required to create a new user
+  @required_fields ~w(username email password)a
+  # fields removed from users when outputted
+  @private_fields  ~w(password salt)a
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, [
@@ -29,23 +35,20 @@ defmodule Cache.Users do
     end
   end
   def create(user) do
-    case get(user.username) do
-      nil -> user
+    with true <- validate_required(user, @required_fields),
+         nil <- get(user.username) do
+      user
       |> create_new_user
       |> set
-
-      _ -> {:error, "User:#{user.username} already found within store"}
+    else
+     false -> {:error, "User does not include required keys"}
+     _  -> {:error, "User:#{user.username} already found within store"}
     end
   end
-  def find_by_session(token), do: GenServer.call(__MODULE__, {:find_by_session, token})
-  def get(username),        do: GenServer.call(__MODULE__, {:get, username})
-  def set(user),            do: GenServer.call(__MODULE__, {:set, user})
-  def valid(username, password) do
-    case get(username) do
-      nil  -> false
-      user -> user.password == password
-    end
-  end
+  def find_by_session(token),    do: GenServer.call(__MODULE__, {:find_by_session, token})
+  def get(username),             do: GenServer.call(__MODULE__, {:get, username})
+  def set(user),                 do: GenServer.call(__MODULE__, {:set, user})
+  def valid(username, password), do: GenServer.call(__MODULE__, {:valid, username, password})
 
   # ------------------------------------------------------------------------
   # SERVER SIDE
@@ -55,10 +58,25 @@ defmodule Cache.Users do
     %{ets_table_name: ets_table_name} = state
     user = case :ets.lookup(ets_table_name, username) do
       []    -> nil
-      [res] -> res |> convert_to_user_map
+      [res] -> res |> convert_to_user_map |> remove_fields(@private_fields)
     end
 
     {:reply, user, state}
+  end
+
+  def handle_call({:valid, username, password}, _from, state) do
+    %{ets_table_name: ets_table_name} = state
+    query = [{
+      {:"$1", %{password: :"$2"}},
+      [{:"==", :"$1", {:const, username}}, {:"==", :"$2", {:const, password}}],
+      [:"$_"]
+    }]
+    is_valid = case :ets.select(ets_table_name, query) do
+      [] -> false
+      [_user] -> true
+    end
+
+    {:reply, is_valid, state}
   end
 
   def handle_call({:set, user}, _from, state) do
@@ -79,7 +97,7 @@ defmodule Cache.Users do
     }]
     user = case :ets.select(ets_table_name, query) do
       [] -> nil
-      [user] -> user |> convert_to_user_map
+      [user] -> user |> convert_to_user_map |> remove_fields(@private_fields)
     end
 
     {:reply, user, state}

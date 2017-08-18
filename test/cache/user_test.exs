@@ -34,7 +34,7 @@ defmodule CacheUserTest do
     assert nil == find_by_session("random")
   end
 
-  test "valid/2 -> true if username and password match" do
+  test "valid/2 -> true if username match" do
     user = %{username: "valid_1", password: ""}
     insert(user)
 

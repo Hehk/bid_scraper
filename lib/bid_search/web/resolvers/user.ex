@@ -25,9 +25,8 @@ defmodule BidSearch.Web.Resolver.User do
   Gets a session token for a user currently missing one
   """
   def login(%{username: username, password: password}, _info) do
-    user = Users.get(username)
-    case user.password == password do
-      true -> {:ok, user}
+    case Users.valid(username, password) do
+      true -> {:ok, Users.get(username)}
       false -> {:error, "Invalid username or password"}
     end
   end
